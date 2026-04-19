@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Family Time">
+<title>Family Time</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Fraunces:ital,wght@0,700;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--cr:#fdf8f2;--wm:#f5efe6;--sd:#e8d9c5;--te:#c96a3c;--ru:#a8522a;--fo:#3d6b4f;--go:#d4a843;--ink:#2a1f14;--mu:#7a6a5a;--sh:0 4px 20px rgba(42,31,20,.1)}
+body{background:var(--cr);font-family:'Nunito',sans-serif;color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent}
+#app{max-width:640px;margin:0 auto;padding:24px 16px 80px}
+.hdr{text-align:center;margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--fo);color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin-bottom:10px}
+.hdr h1{font-family:'Fraunces',serif;font-size:clamp(1.7rem,6vw,2.4rem);font-weight:700;line-height:1.15}
+.hdr h1 em{font-style:italic;color:var(--te)}
+.hdr p{color:var(--mu);font-size:13px;margin-top:6px}
+.ctx{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.pill{background:var(--wm);border:1.5px solid var(--sd);border-radius:30px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--mu)}
+.pill.weather{background:#e8f4fd;border-color:#b3d9f5;color:#1a6fa8}
+.pill.holiday{background:#fff0e8;border-color:#ffc9a0;color:#a85a1a}
+.pill.loading{opacity:.6;font-style:italic}
+.prog{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--sd);transition:all .3s;display:inline-block}
+.dot.active{background:var(--te);transform:scale(1.35)}
+.dot.done{background:var(--fo)}
+.card{background:#fff;border-radius:22px;padding:24px 20px;box-shadow:var(--sh)}
+.stag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--te);margin-bottom:4px}
+.card h2{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:700}
+.sub{color:var(--mu);font-size:13px;margin-top:3px;margin-bottom:16px}
+.og{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.oc{background:var(--wm);border:2px solid var(--sd);border-radius:15px;padding:13px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .18s;text-align:center;font-family:'Nunito',sans-serif;width:100%;-webkit-appearance:none}
+.oc.sel{background:var(--te);border-color:var(--te);color:#fff;box-shadow:0 6px 18px rgba(201,106,60,.3)}
+.oc.sel .os{color:rgba(255,255,255,.8)}
+.oe{font-size:26px;line-height:1.2}.ol{font-weight:800;font-size:13px}.os{font-size:11px;color:var(--mu);font-weight:600}
+.nav{display:flex;gap:10px;margin-top:13px}
+.nav .nb{margin-top:0;flex:1}
+.nb{width:100%;margin-top:13px;background:var(--ink);color:#fff;border:none;border-radius:13px;padding:13px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer}
+.nb:disabled{opacity:.3;cursor:default}
+.back{flex:1;background:#fff;color:var(--ink);border:2px solid var(--sd);border-radius:13px;padding:13px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer}
+.hero{background:linear-gradient(135deg,var(--fo),#2d5040);border-radius:22px;padding:24px 20px;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:rgba(255,255,255,.05);border-radius:50%}
+.cb{position:absolute;top:13px;right:13px;background:rgba(255,255,255,.2);border-radius:18px;padding:3px 9px;font-size:11px;font-weight:800}
+.ht{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:5px}
+.hero h2{font-family:'Fraunces',serif;font-size:clamp(1.3rem,4.5vw,1.8rem);font-weight:700;line-height:1.2;margin-bottom:5px}
+.htl{font-size:13px;color:rgba(255,255,255,.85);font-weight:700}
+.hm{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.18);border-radius:18px;padding:4px 11px;font-size:12px;font-weight:700}
+.ctx-bar{background:rgba(255,255,255,.12);border-radius:10px;padding:8px 12px;margin-top:12px;font-size:12px;color:rgba(255,255,255,.85);font-weight:600}
+.secs{display:flex;flex-direction:column;gap:11px}
+.sec{background:#fff;border-radius:17px;padding:17px;box-shadow:var(--sh)}
+.st{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--te);margin-bottom:8px}
+.wt{font-size:14px;line-height:1.68}
+.sl{list-style:none;display:flex;flex-direction:column;gap:9px;padding:0}
+.sl li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5}
+.sn{background:var(--te);color:#fff;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px}
+.tgs{display:flex;flex-wrap:wrap;gap:6px}
+.tg{background:var(--wm);border:1.5px solid var(--sd);border-radius:18px;padding:4px 10px;font-size:12px;font-weight:700}
+.tb{background:linear-gradient(135deg,#fff8f0,#fdf0e4);border-left:4px solid var(--go);border-radius:0 11px 11px 0;padding:12px 14px;font-size:13px;line-height:1.68}
+.bb{background:linear-gradient(135deg,#f0f7f4,#e8f5ee);border-left:4px solid var(--fo);border-radius:0 11px 11px 0;padding:12px 14px;font-size:13px;line-height:1.68}
+.acts{display:flex;gap:10px;margin-top:16px}
+.bp{flex:1;background:var(--te);color:#fff;border:none;border-radius:13px;padding:13px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.bs{flex:1;background:#fff;color:var(--ink);border:2px solid var(--sd);border-radius:13px;padding:13px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer}
+.loc-note{background:var(--wm);border:1.5px solid var(--sd);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--mu);text-align:center;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ── Context ───────────────────────────────────────────────────────────────────
+const _d=new Date();
+const MONTH=_d.getMonth(), HOUR=_d.getHours(), WDAY=_d.getDay();
+const DAY=_d.toLocaleDateString("en-US",{weekday:"long"});
+const DATE_STR=_d.toLocaleDateString("en-US",{month:"long",day:"numeric"});
+const SEASON=MONTH<=1||MONTH===11?"winter":MONTH<=4?"spring":MONTH<=7?"summer":"fall";
+const TOD=HOUR<12?"morning":HOUR<17?"afternoon":HOUR<20?"evening":"night";
+const IS_WEEKEND=WDAY===0||WDAY===6;
+const SE={winter:"❄️",spring:"🌸",summer:"☀️",fall:"🍂"};
+const TE={morning:"🌅",afternoon:"🌤️",evening:"🌇",night:"🌙"};
+
+// ── Holiday Detection ─────────────────────────────────────────────────────────
+function getHoliday(){
+const m=MONTH+1, d=_d.getDate();
+const holidays={
+“1/1”:“🎆 New Year’s Day”,“2/14”:“💝 Valentine’s Day”,“3/17”:“🍀 St. Patrick’s Day”,
+“7/4”:“🎇 Independence Day”,“10/31”:“🎃 Halloween”,“11/11”:“🎖️ Veterans Day”,
+“12/24”:“🎄 Christmas Eve”,“12/25”:“🎁 Christmas Day”,“12/31”:“🥂 New Year’s Eve”
+};
+const key=`${m}/${d}`;
+if(holidays[key]) return holidays[key];
+// Thanksgiving: 4th Thursday of November
+if(m===11){
+let thursdays=0;
+for(let i=1;i<=d;i++){const dd=new Date(_d.getFullYear(),10,i);if(dd.getDay()===4)thursdays++;}
+if(thursdays===4&&new Date(_d.getFullYear(),10,d).getDay()===4) return “🦃 Thanksgiving”;
+}
+// Mother’s Day: 2nd Sunday of May
+if(m===5){
+let sundays=0;
+for(let i=1;i<=d;i++){const dd=new Date(_d.getFullYear(),4,i);if(dd.getDay()===0)sundays++;}
+if(sundays===2&&new Date(_d.getFullYear(),4,d).getDay()===0) return “💐 Mother’s Day”;
+}
+// Father’s Day: 3rd Sunday of June
+if(m===6){
+let sundays=0;
+for(let i=1;i<=d;i++){const dd=new Date(_d.getFullYear(),5,i);if(dd.getDay()===0)sundays++;}
+if(sundays===3&&new Date(_d.getFullYear(),5,d).getDay()===0) return “👨‍👧 Father’s Day”;
+}
+// Near Christmas (Dec 20-23)
+if(m===12&&d>=20&&d<=23) return “🎄 Holiday Week”;
+// Near Halloween (Oct 28-30)
+if(m===10&&d>=28&&d<=30) return “🎃 Almost Halloween”;
+// Spring Break (late March)
+if(m===3&&d>=15&&d<=25) return “🌸 Spring Break”;
+// Summer start
+if(m===6&&d<=7) return “☀️ First Week of Summer”;
+return null;
+}
+const HOLIDAY=getHoliday();
+
+// ── Weather & Location ────────────────────────────────────────────────────────
+let ctx={weather:null,temp:null,city:null,isRaining:false,isCold:false,isHot:false,isWindy:false,loaded:false};
+
+async function loadContext(){
+try{
+const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:6000}));
+const lat=pos.coords.latitude, lon=pos.coords.longitude;
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m&temperature_unit=fahrenheit&windspeed_unit=mph`);
+const data=await r.json();
+const c=data.current;
+const temp=Math.round(c.temperature_2m);
+const code=c.weathercode;
+const wind=c.windspeed_10m;
+// Weather codes: 0=clear, 1-3=partly cloudy, 45-48=fog, 51-67=rain/drizzle, 71-77=snow, 80-82=showers, 95-99=thunderstorm
+const isRaining=code>=51&&code<=82||code>=95;
+const isSnowing=code>=71&&code<=77;
+const isCloudy=code>=1&&code<=48;
+const isClear=code===0;
+const isCold=temp<45;
+const isHot=temp>88;
+const isWindy=wind>20;
+let weatherLabel=””;
+if(isSnowing) weatherLabel=`❄️ Snowing ${temp}°F`;
+else if(isRaining) weatherLabel=`🌧️ Rainy ${temp}°F`;
+else if(isWindy) weatherLabel=`💨 Windy ${temp}°F`;
+else if(isCold) weatherLabel=`🥶 Cold ${temp}°F`;
+else if(isHot) weatherLabel=`🥵 Hot ${temp}°F`;
+else if(isClear) weatherLabel=`☀️ Clear ${temp}°F`;
+else weatherLabel=`⛅ Cloudy ${temp}°F`;
+// Reverse geocode for city
+let city=””;
+try{
+const gr=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+const gd=await gr.json();
+city=gd.address?.city||gd.address?.town||gd.address?.suburb||””;
+}catch(e){}
+ctx={weather:weatherLabel,temp,city,isRaining,isSnowing,isCold,isHot,isWindy,isClear,isCloudy,loaded:true,lat,lon};
+}catch(e){
+ctx={…ctx,loaded:true};
+}
+render();
+}
+
+// ── Activity Library (100+ activities) ────────────────────────────────────────
+const L=[
+// ═══ SILLY & FUN - INSIDE ═══
+{n:“Lip Sync Battle”,t:“Who’s the real star in this family?”,w:“When you belt out a song with zero dignity, kids realize you’re a real person — and love you even more for it.”,s:[“Each person secretly picks a song”,“Clear the living room as your stage”,“Perform with full commitment — no half measures”,“Vote: most dramatic, best moves, most unhinged”],n2:[“Phone or speaker”,“Hairbrush mic”,“Optional: sunglasses”],tip:“Go first and be completely over the top. Your silliness gives kids full permission to match it.”,e:“high”,twist:“Film every performance and do a watch party with popcorn after.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Indoor Mini Olympics”,t:“May the best family member win (probably not you)”,w:“Inventing absurd competitions together is itself the activity. By the time you’re pushing cotton balls with your nose, everyone’s laughing too hard to care who wins.”,s:[“Together invent 5 events: balloon keep-up, sock toss, slow-motion race, cotton ball nose push”,“Set up each arena in a different room”,“Keep score on paper”,“Crowning ceremony with a homemade trophy”],n2:[“Balloons”,“Cotton balls”,“Socks”,“Paper for scoring”],tip:“Create one event your youngest has a real shot at winning. Watching them beam is the whole point.”,e:“high”,twist:“Add an opening ceremony with made-up national anthems for each family member.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Freeze Dance Party”,t:“Music controls everything — even you”,w:“Dancing together dissolves the normal parent-child hierarchy. For a few songs you’re just two people moving to music.”,s:[“Make a playlist — each person adds 3 songs”,“Start dancing freely”,“Pause the music randomly — freeze instantly or you’re out”,“Most ridiculous freeze pose wins the round”],n2:[“Phone or speaker”,“Open floor space”],tip:“Be the worst dancer AND the most dramatic freezer. Your commitment to silliness sets the whole tone.”,e:“high”,twist:“Let the youngest control the pause button — it becomes a hilarious power trip.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“active”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Homemade Puppet Show”,t:“Write, build, and perform your own mini theater”,w:“Puppet shows let kids express themselves through characters — you’ll hear things you’d never hear directly. It’s play therapy disguised as pure fun.”,s:[“Make puppets from socks or paper bags”,“Build a stage from a box or hang a sheet between chairs”,“Write a 5-minute show together”,“Perform for each other and film it”],n2:[“Socks or paper bags”,“Markers and craft supplies”,“A box or sheet for the stage”],tip:“Ask your kid’s puppet a question during the show. You might get a surprisingly honest answer.”,e:“medium”,twist:“Do a sequel the following week — continue the story.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Pillow Fight Tournament”,t:“Establish the household champion once and for all”,w:“Safe physical play with a parent builds trust in a way calm activities simply can’t. Laughter and closeness during roughhousing is irreplaceable.”,s:[“Clear a soft zone with pillows on the floor”,“Rules: no faces, no jumping on furniture”,“Round-robin — everyone faces everyone”,“Declare a champion and a best loser”],n2:[“All the pillows in the house”,“Clear floor space”],tip:“Let yourself get hit hard and react dramatically. Kids go wild when they feel genuinely powerful.”,e:“high”,twist:“Add a slow-motion round — everyone must fight in ultra slow motion.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“active”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Silly Recipe Challenge”,t:“Raid the fridge and invent something terrible (or amazing)”,w:“Cooking with no rules is completely different from regular meal prep. When the goal is creativity over taste, kids take charge and the kitchen becomes their laboratory.”,s:[“Each person grabs 5 mystery ingredients from the fridge”,“Spend 20 minutes inventing a dish — any combo allowed”,“Present your creation with a fancy name and origin story”,“Taste each other’s creations (brave optional)”],n2:[“Whatever’s in your fridge”,“Basic cooking equipment”,“Courage”],tip:“Eat a real bite of whatever they made and react genuinely. The stakes make it electric.”,e:“medium”,twist:“Post the recipe cards somewhere visible — even disasters deserve recognition.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“learning”],time:[“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Cardboard Box City”,t:“Raid the recycling and build a whole world”,w:“Large-scale building projects with everyday materials ignite creative thinking and give kids real agency. The messier and bigger it gets, the more invested everyone becomes.”,s:[“Collect cardboard boxes, tubes, egg cartons”,“Plan a city layout together on the floor”,“Build and decorate — tape, markers, paint if you have it”,“Play in your creation with figures or toy cars”],n2:[“Cardboard boxes and tubes”,“Tape”,“Markers or paint”,“Toy cars or figures (optional)”],tip:“Resist tidying or fixing their wobbly buildings. The imperfection is the point.”,e:“medium”,twist:“Add lights — poke holes in the boxes and put a flashlight inside each building.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Karaoke Night”,t:“Belt it out — no talent required”,w:“Singing together — especially badly — is one of the most bonding things humans can do. There’s a reason every culture on earth has group singing.”,s:[“Pull up YouTube karaoke versions of favorite songs”,“Take turns picking songs — no judgment on choices”,“Duets strongly encouraged”,“Rate each performance on a scale of 1 to 10 with dramatic commentary”],n2:[“TV or phone”,“YouTube (free)”,“Optional: makeshift microphone”],tip:“Pick a song from your own teen years and explain why you loved it. Music is the fastest bridge between generations.”,e:“medium”,twist:“Do a theme night — 80s only, Disney only, or one-hit wonders only.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Fort Building Championship”,t:“Engineer the ultimate couch cushion structure”,w:“The design challenge of fort-building requires real problem-solving and negotiation. Once you’re inside together, the phone goes away and you’re just present with each other.”,s:[“Gather every blanket, pillow, and clip in the house”,“Challenge: build a fort big enough for everyone”,“Negotiate the design — each person is responsible for one section”,“Stock it with snacks and spend real time inside”],n2:[“Blankets, pillows, clips”,“Couch cushions”,“Snacks”,“Optional: flashlights”],tip:“Once inside, put your phone completely away. The fort is sacred. Kids notice immediately.”,e:“medium”,twist:“Give the fort a name, design a flag for it, and declare it the family headquarters.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Indoor Scavenger Hunt”,t:“Hide clues around the house for an epic adventure”,w:“The thrill of a hunt — following clues, solving riddles, racing to the next location — creates genuine excitement that kids talk about for weeks.”,s:[“Write 8-10 clue cards that lead around the house”,“Hide a small prize or special treat at the end”,“Let kids work as a team while you set it up”,“Watch and encourage — or join as a team”],n2:[“Paper and pen for clues”,“A small prize or treat”,“Hiding spots around the house”],tip:“Make the clues just hard enough that they need to think — but not so hard they get frustrated.”,e:“medium”,twist:“Make the final prize an experience — ‘family movie night of your choice’ or ‘stay up 30 min late.’”,tags:{loc:[“inside”],ages:[“young”,“tween”],mood:[“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+
+// ═══ CALM & CLOSE - INSIDE ═══
+{n:“Question Jar Night”,t:“The deepest conversations start with the silliest questions”,w:“Structured questions remove the pressure of ‘just talking,’ making it natural for kids to open up. When you answer vulnerably first, you model that honesty is safe here.”,s:[“Write 20 questions on slips: mix silly and meaningful”,“Put them in a jar or bowl”,“Take turns drawing and answering — no skipping”,“Share one thing you learned about each person at the end”],n2:[“Paper and pen”,“A jar or bowl”,“Optional: cozy drinks”],tip:“Answer first every time, and share something real. Your vulnerability is the whole invitation.”,e:“low”,twist:“Keep the jar and add new questions monthly.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Memory Lane Photo Night”,t:“Dig out old photos and tell the stories behind them”,w:“Sharing your own childhood with your kids builds their sense of identity. When they see you as a child, they understand you differently — and feel closer to you.”,s:[“Pull out old family photos — physical or digital”,“Sit together and go through them slowly”,“Tell the story behind each one — be honest and funny”,“Let kids ask any question they want”],n2:[“Old family photos”,“Cozy setup”],tip:“Share an embarrassing or hard story too. Not just the highlights — the realness is what resonates.”,e:“low”,twist:“Let kids interview you on video about your childhood. They’ll treasure it.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Read Aloud Together”,t:“One chapter, all the voices, everyone cozy”,w:“Reading aloud together at any age builds vocabulary, empathy, and shared reference points. The ritual of settling in together is itself a bonding act.”,s:[“Pick a chapter book everyone can enjoy”,“Get genuinely cozy — blankets, dim lights, warm drinks”,“Read aloud doing different voices for characters”,“Stop at cliffhangers and predict what happens next”],n2:[“A good chapter book”,“Cozy spot”,“Optional: hot chocolate”],tip:“Let older kids take turns reading pages too. Being trusted to contribute makes them feel important.”,e:“low”,twist:“After each chapter, someone draws a scene from what you just read.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“15-20 minutes”,“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Gratitude Jar”,t:“Fill a jar with the good — read it when life gets hard”,w:“Actively noticing and naming good things together rewires everyone’s attention toward what’s working. One of the highest-leverage habits a family can build.”,s:[“Get a jar and cut paper into slips”,“Everyone writes 3 things they’re grateful for — one per slip”,“Read them aloud and guess who wrote what”,“Seal the jar and open it in 6 months”],n2:[“A jar”,“Paper and pens”,“Optional: colored markers”],tip:“Include things about each other — ‘I’m grateful you made me laugh today.’ It starts a kindness chain.”,e:“low”,twist:“Make it a weekly ritual — every Sunday, add new slips.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Spa Night”,t:“Face masks, foot soaks, total relaxation together”,w:“Nurturing physical care without agenda is profoundly connecting — especially for teens. The relaxed setting tends to open up conversation naturally.”,s:[“Set the mood: dim lights, calm music, cozy PJs”,“Make DIY face masks together (honey + oats is great)”,“Foot soaks with warm water and Epsom salts”,“Nails, hair, or just lie there talking”],n2:[“Towels, washcloths”,“Honey and oats for masks”,“Epsom salts”,“Calm music”],tip:“Ask one open question while masks are on: ‘What’s been the best part of your week?’”,e:“low”,twist:“Watch a comfort movie simultaneously — the double coziness is unbeatable.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”,“small”],weather:[“any”]}},
+{n:“Time Capsule”,t:“Seal away this moment to open in 5 years”,w:“Creating a time capsule makes kids acutely aware of the present moment — who they are right now. It’s a meditation on time disguised as a project.”,s:[“Each person writes: favorite things, current hopes, a letter to future self”,“Add a photo, small drawing, or meaningful object”,“Seal it in a box with duct tape”,“Write the open date on the outside”],n2:[“A box or container”,“Paper and pens”,“Tape”,“Small mementos”],tip:“Include a letter FROM you to them about who they are right now. They’ll read it older and cry.”,e:“low”,twist:“Hide it with a treasure map.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Family Cookbook Project”,t:“Document the recipes that make your family, your family”,w:“Food carries more memory and identity than almost anything else. Recording your family’s recipes creates a tangible artifact of your shared history.”,s:[“Each family member picks their single favorite family meal”,“Cook it together, measuring and noting everything carefully”,“Write up the recipe with the story behind it”,“Compile into a binder or printed booklet”],n2:[“Recipe ingredients”,“Paper or recipe cards”,“A binder or folder”],tip:“Include the imperfections — ‘always add more cheese than it says.’ Those notes are the soul of it.”,e:“medium”,twist:“Make copies for grandparents as gifts.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“2+ hours”],budget:[“small”,“free”],weather:[“any”]}},
+{n:“Family Playlist Night”,t:“One song each — build your family soundtrack”,w:“Music is deeply tied to identity and memory. When your kid adds a song and explains why it matters, you get a window into who they are that few other activities provide.”,s:[“Each family member picks 3 songs that matter right now”,“Add them all to a shared playlist”,“Listen to each one — person explains why they chose it”,“Play the playlist in the car going forward”],n2:[“Phone and music app”],tip:“Actually listen to their songs without judgment. What they love tells you everything about who they’re becoming.”,e:“low”,twist:“Make a different playlist every year — a time capsule in music.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Gratitude Hot Seat”,t:“Every person gets 2 minutes of pure appreciation”,w:“Being specifically and genuinely appreciated is one of the most powerful gifts we can give children.”,s:[“One person sits in the ‘hot seat’”,“Everyone else says one specific thing they love about that person”,“No deflecting — just receive it”,“Rotate until everyone’s had a turn”],n2:[“A designated chair”,“Open hearts”],tip:“Be specific — not ‘you’re kind’ but ‘when you shared your snack Tuesday, that was really kind.’”,e:“low”,twist:“Write them down so everyone keeps their appreciation notes.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Life Story Interview”,t:“Record your parents telling stories from their life”,w:“Kids are profoundly shaped by knowing their family story. Research shows children who know their family history are more resilient and have stronger identities.”,s:[“Come up with 10 interview questions: childhood, dreams, fears, funny moments”,“Set up a phone to record video”,“Interview a parent, grandparent, or each other”,“Watch it back together”],n2:[“Phone for video”,“List of questions”],tip:“Ask the hard questions too: ‘What’s the hardest thing you’ve ever been through?’ The honest answers are the most valuable.”,e:“low”,twist:“Send the video to extended family — it becomes a treasured artifact.”,tags:{loc:[“inside”],ages:[“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Vision Board Night”,t:“Dream out loud together”,w:“Articulating hopes and dreams together builds a shared understanding of what each person wants from life. Knowing what matters to your kids is one of the most powerful parenting tools.”,s:[“Get old magazines, print photos, or draw directly”,“Each person makes their own board: dreams, goals, things you love”,“Share and explain each thing you included”,“Display them somewhere visible”],n2:[“Old magazines or printed photos”,“Poster board or paper”,“Scissors and glue”,“Markers”],tip:“Make your own board too — let kids see you still have dreams and goals.”,e:“low”,twist:“Revisit the boards every year and make new ones — the changes tell a story.”,tags:{loc:[“inside”],ages:[“tween”,“teen”],mood:[“calm”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Stargazing Indoors”,t:“Learn the night sky from your living room floor”,w:“Sharing wonder at something enormous together creates a humbling closeness. It’s almost impossible to feel small problems when you’re discussing galaxies.”,s:[“Pull up Stellarium app (free)”,“Lie on the floor together and explore the night sky”,“Learn 5 constellations and the stories behind them”,“Make up your own family constellation”],n2:[“Phone or tablet”,“Stellarium app (free)”,“Blankets for floor-lying”],tip:“Share something you genuinely wonder about space. Admitting you don’t know invites kids to wonder with you.”,e:“low”,twist:“If it’s clear outside, go verify what you learned against the actual sky.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+
+// ═══ LEARNING - INSIDE ═══
+{n:“Kitchen Science Lab”,t:“Blow things up (safely) in the name of science”,w:“The shared excitement of ‘it’s working!’ bonds you as co-discoverers. You’re not a parent teaching — you’re two scientists running experiments together.”,s:[“Set up 3 experiments: baking soda volcano, milk+food coloring+soap, dancing raisins”,“Before each: everyone predicts what will happen”,“Run the experiment and observe together”,“Try variations — more? less? different?”],n2:[“Baking soda and vinegar”,“Whole milk, food coloring, dish soap”,“Clear soda and raisins”],tip:“Be genuinely surprised and curious. Real wonder is completely contagious.”,e:“medium”,twist:“Write it up in a ‘lab notebook’ — date, prediction, result, conclusion.”,tags:{loc:[“inside”],ages:[“young”,“tween”],mood:[“learning”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Watercolor Session”,t:“No skill required — just color and paper”,w:“Side-by-side art with no goal releases everyone. The parallel focus creates quiet companionship, and the colors always spark conversation.”,s:[“Set up paper and paints for everyone”,“Give a loose prompt: ‘paint tonight’ or ‘paint something you love’”,“Create in parallel — no looking until done”,“Share and display — tape artwork somewhere visible”],n2:[“Watercolor paints”,“Paper”,“Brushes and water cups”],tip:“Ask about their painting — ‘What’s happening here?’ gets more interesting answers than ‘I like it.’”,e:“low”,twist:“Trade canvases halfway through and add to each other’s painting.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“learning”,“calm”],time:[“30-45 minutes”,“1 hour”],budget:[“free”,“small”],weather:[“any”]}},
+{n:“Learn a Magic Trick Together”,t:“Master one trick and perform it for the family”,w:“Learning a skill together — starting as equals, struggling together, celebrating the breakthrough — is one of the purest bonding experiences there is.”,s:[“Look up a simple card trick or coin trick on YouTube”,“Watch the tutorial together”,“Practice together until you’ve both got it”,“Perform it for other family members or call a grandparent to show them”],n2:[“A deck of cards or coins”,“YouTube for tutorials”],tip:“Let your kid perfect it before you do. Watching them become the expert is transformative.”,e:“medium”,twist:“Each person learns a different trick — teach each other.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“learning”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Build a Birdhouse or Feeder”,t:“Make something real together that wildlife will use”,w:“Building something with your hands that serves a real purpose gives kids deep satisfaction. Every time a bird visits, they’ll remember making it with you.”,s:[“Look up a simple birdhouse or feeder plan on YouTube”,“Gather materials: wood scraps, a milk carton, or a plastic bottle”,“Build and decorate together”,“Hang it outside and watch for visitors”],n2:[“Wood scraps or milk carton”,“Basic tools or scissors”,“Paint for decoration”,“String or hook for hanging”],tip:“Let them lead the decoration. Their creative choices matter more than the finished look.”,e:“medium”,twist:“Keep a notebook of every bird species that visits.”,tags:{loc:[“inside”],ages:[“young”,“tween”],mood:[“learning”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”,“small”],weather:[“any”]}},
+{n:“Code Your First Game Together”,t:“Build something from nothing in an afternoon”,w:“Learning to make something from scratch — especially something that works — gives kids a lasting sense of capability. Doing it alongside you makes it twice as meaningful.”,s:[“Open Scratch (scratch.mit.edu — free) on a computer or tablet”,“Follow a beginner tutorial to make a simple catching game”,“Customize it: new sprites, rules, your family’s names”,“Play the finished game and celebrate”],n2:[“Computer or tablet”,“Internet access for Scratch (free)”],tip:“Let your kid take the keyboard. Your job is to ask questions, not take over.”,e:“medium”,twist:“Share the finished game with family via the Scratch link.”,tags:{loc:[“inside”],ages:[“tween”,“teen”],mood:[“learning”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“Origami Workshop”,t:“Master the art of folding paper together”,w:“Origami requires focus, patience, and following steps — doing it side by side creates a calm, shared concentration that naturally leads to conversation.”,s:[“Look up 3 beginner origami models on YouTube (crane, frog, boat are classics)”,“Work through each one together — help each other with tricky folds”,“Make a small collection of your creations”,“Display them or give them as gifts”],n2:[“Printer paper or origami paper”,“YouTube for tutorials”],tip:“When you mess up a fold, keep going anyway. Imperfect origami still has value — and so does modeling persistence.”,e:“low”,twist:“Write tiny secret messages inside each origami piece before the final fold.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“learning”,“calm”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+{n:“Map Your Family History”,t:“Trace where your family came from on a world map”,w:“Understanding where they come from gives kids a profound sense of identity and rootedness. It also opens conversations about history, culture, and belonging.”,s:[“Get a world map (print one free or use Google Maps)”,“Together, mark every place your family has roots — birthplaces, places lived, places of origin”,“Tell the story of each place — what happened there?”,“Research one ancestor together online”],n2:[“World map (printed or digital)”,“Colored pins or markers”,“Stories and family knowledge”],tip:“Share things you don’t know too — the mystery of unknown ancestors can be even more captivating than the known history.”,e:“low”,twist:“Cook a dish from one of the countries on your map.”,tags:{loc:[“inside”],ages:[“tween”,“teen”],mood:[“learning”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+{n:“DIY Bowling”,t:“Fill bottles, tape a lane, bowl”,w:“Creating your own version of something from scratch gives kids resourcefulness and pride. The homemade lane feels more special than any real bowling alley.”,s:[“Fill 10 plastic bottles with a little water for stability”,“Tape a lane down the hallway”,“Use a soft ball or rolled-up socks”,“Keep score — tournament format”],n2:[“10 plastic bottles”,“Tape”,“Soft ball or socks”],tip:“Let the youngest adjust the throwing distance. The game is about playing, not fairness.”,e:“medium”,twist:“Splits require answering a trivia question before your second ball.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+
+// ═══ ACTIVE - INSIDE ═══
+{n:“Yoga Flow Together”,t:“Move and breathe as a family”,w:“Shared physical practice — even just 15 minutes — regulates everyone’s nervous system and creates a calm, connected atmosphere.”,s:[“Find Cosmic Kids Yoga on YouTube (free, great for families)”,“Clear floor space and get mats or blankets”,“Follow along together — laugh when you fall over”,“End with 2 minutes lying still in silence”],n2:[“Open floor space”,“Yoga mats or blankets”,“Phone for video”],tip:“Fall out of poses dramatically and laugh. Perfectionism is the enemy of connection.”,e:“low”,twist:“Afterward, each person shares one thing they’re letting go of today.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“active”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Living Room Obstacle Course”,t:“The furniture becomes an adventure course”,w:“Physical challenges that require creative use of everyday objects develop spatial thinking and get everyone moving together in a way that feels genuinely exciting.”,s:[“Design a course together: crawl under the table, jump over pillows, spin 3 times at the chair”,“Set the rules and run through it slowly once”,“Time each person for real”,“Add a new element each round”],n2:[“Pillows, chairs, blankets”,“Timer”,“Open floor space”],tip:“Run it first at full speed and pretend to struggle. Let them beat your time on round two.”,e:“high”,twist:“Do a team version — you must complete it holding hands the whole way.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”]}},
+
+// ═══ RAINY DAY SPECIALS ═══
+{n:“Rainy Day Baking Marathon”,t:“Fill the house with warmth and the smell of something amazing”,w:“Baking together on a rainy day is one of the most sensory and emotionally rich things you can do. The smell of something in the oven signals safety and care.”,s:[“Pick two things to bake: one savory, one sweet”,“Tackle them one at a time, kids leading where possible”,“While things bake, play a card game or do a puzzle together”,“Eat everything warm with hot drinks”],n2:[“Baking ingredients”,“Basic kitchen equipment”,“Hot drinks”],tip:“Let them lick the bowl. Let them add extra chocolate chips. The point is togetherness, not perfection.”,e:“medium”,twist:“Deliver some of what you made to a neighbor — teaching generosity is a quiet but lasting gift.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“2+ hours”],budget:[“small”,“free”],weather:[“rainy”,“cold”,“snowy”]}},
+{n:“Rainy Day Movie Marathon”,t:“Pick a trilogy or series and commit fully”,w:“Shared stories create shared language — inside references that only your family uses, characters you all love or hate, scenes you quote for years.”,s:[“Let kids pick a movie series or trilogy”,“Set up the coziest possible viewing situation”,“Make themed snacks for each film”,“No phones during the movies — full presence”],n2:[“Streaming service”,“Blankets and pillows”,“Themed snacks”,“All the time”],tip:“Talk about the movies between each one. ‘Who’s your favorite character and why?’ goes deeper than you’d expect.”,e:“low”,twist:“Rate each film together on a family scorecard and debate the rankings.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“silly”],time:[“2+ hours”],budget:[“free”],weather:[“rainy”,“cold”,“snowy”]}},
+{n:“Puzzle Day”,t:“Spread it out and chip away together”,w:“Puzzles are uniquely connective because you’re both focused on the same thing. Side-by-side attention on a shared problem generates easy, unhurried conversation.”,s:[“Pick a puzzle — 500-1000 pieces is great for a family”,“Spread it out on the floor or a table”,“Work on it in shifts — no pressure to finish today”,“Put on music or a podcast in the background”],n2:[“A jigsaw puzzle”,“Table or floor space”,“Snacks”,“Good music”],tip:“Don’t try to ‘solve’ it efficiently. Let it be slow and meandering. That’s where the talking happens.”,e:“low”,twist:“Take a photo of the finished puzzle, frame it, and hang it up.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”],time:[“2+ hours”,“1 hour”],budget:[“free”,“small”],weather:[“rainy”,“cold”,“snowy”,“any”]}},
+{n:“Board Game Tournament”,t:“May the best player win — and the worst lose gracefully”,w:“Games create a safe space for healthy competition, celebration, and even handling disappointment. The banter and laughter around a game table are irreplaceable.”,s:[“Let kids pick 2-3 games”,“Play best-of-three rounds”,“Keep score on paper with silly commentary”,“Award a ridiculous homemade trophy”],n2:[“Board games or card games you own”,“Snacks”,“Scorecard and pen”],tip:“Lose gracefully and let them see you enjoy losing. It’s a bigger lesson than winning.”,e:“low”,twist:“Invent a house rule for one of the games — something fun and slightly chaotic.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“any”]}},
+
+// ═══ HOLIDAY SPECIALS ═══
+{n:“Halloween Costume Design Studio”,t:“Make this year’s costume from scratch”,w:“Creating something wearable together builds craft skills, creative confidence, and a story behind the costume that store-bought versions never have.”,s:[“Brainstorm costume ideas together — the weirder the better”,“Raid the closet, thrift store finds, and craft supplies”,“Build and refine the costume together”,“Do a full photo shoot in the finished costumes”],n2:[“Old clothes and fabric”,“Craft supplies: paint, glue, scissors”,“Cardboard for props”,“Camera for photos”],tip:“Take their vision seriously even if it’s technically challenging. The stretch is the point.”,e:“medium”,twist:“Make a matching family costume theme.”,tags:{loc:[“inside”],ages:[“young”,“tween”],mood:[“silly”,“learning”],time:[“2+ hours”],budget:[“small”,“free”],weather:[“any”],holiday:[“halloween”]}},
+{n:“Pumpkin Carving Party”,t:“The classic Halloween tradition, done properly”,w:“The ritual of annual traditions — the smell of pumpkin, the same tools, the same spot at the table — builds a sense of continuity that makes kids feel rooted and safe.”,s:[“Pick out pumpkins together (or use ones you have)”,“Design your faces first on paper”,“Carve with appropriate tools for each age”,“Light them at dusk and take photos”],n2:[“Pumpkins”,“Carving tools”,“Newspaper to catch the mess”,“Candles or battery tea lights”],tip:“Save and roast the pumpkin seeds together afterward — the smell fills the house with something special.”,e:“medium”,twist:“Do a theme: one scary, one silly, one artistic.”,tags:{loc:[“inside”,“outside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“silly”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“small”],weather:[“any”],holiday:[“halloween”]}},
+{n:“Christmas Cookie Baking Day”,t:“Bake, frost, and decorate with no restraint”,w:“The ritual of making the same cookies at the same time of year creates a sensory memory that lasts a lifetime. The smell of gingerbread will always mean family.”,s:[“Make a simple dough: sugar cookies or gingerbread”,“Let it chill while you set up the decorating station”,“Cut and bake together — kids control the shapes”,“Full creative freedom on decorating — no correcting”],n2:[“Cookie dough ingredients”,“Cookie cutters”,“Frosting and sprinkles”,“Decorating tools”],tip:“Display the cookies before eating them — they deserve an audience.”,e:“medium”,twist:“Deliver a plate to a neighbor or friend who might be alone this holiday.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“calm”,“silly”],time:[“2+ hours”,“1 hour”],budget:[“small”],weather:[“any”],holiday:[“christmas”]}},
+{n:“Holiday Card Making Studio”,t:“Make every card by hand this year”,w:“Handmade cards mean incomparably more than bought ones — both to the sender and the receiver. The act of thinking about each recipient and making something specific for them teaches empathy.”,s:[“List everyone you want to send cards to”,“Set up an art station with paper, stamps, markers, stickers”,“Each person makes cards for people they love”,“Write real messages inside — not just signatures”],n2:[“Card stock or thick paper”,“Markers, stamps, stickers, watercolors”,“Envelopes”,“A list of recipients”],tip:“Have everyone write one specific thing they appreciate about each recipient. It elevates a card into something kept.”,e:“low”,twist:“Include a family photo in each card.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“small”,“free”],weather:[“any”],holiday:[“christmas”]}},
+{n:“Thanksgiving Gratitude Dinner”,t:“Go around the table and actually mean it”,w:“The most powerful Thanksgiving tradition is also the simplest — each person says what they’re genuinely grateful for. Done with real attention, it’s transformative.”,s:[“Before the meal, each person writes their gratitude on a card”,“Go around the table reading them aloud — no rushing”,“Share a memory from the past year that you’re grateful for”,“Take a family photo before eating”],n2:[“Index cards and pens”,“The dinner table”,“Full presence”],tip:“Include gratitude for each other specifically — ‘I’m grateful for the time you did X.’”,e:“low”,twist:“Record the readings on video — watching it years later is incredibly moving.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”],budget:[“free”],weather:[“any”],holiday:[“thanksgiving”]}},
+{n:“Valentine’s Day Card Factory”,t:“Make handmade valentines for everyone you love”,w:“Teaching kids to express affection — in words, in small gestures — is one of the most important things you can do. Cards for friends, family, and teachers matter.”,s:[“List everyone who deserves a valentine”,“Set up a card-making station with all the supplies”,“Each person makes cards for their list”,“Write something real inside — not just ‘Happy Valentine’s Day’”],n2:[“Red and pink paper”,“Markers, stickers, foam hearts”,“Glue and scissors”,“Envelopes”],tip:“Make one for yourself too — model that self-love is not weird.”,e:“low”,twist:“Deliver them in person where possible — the reaction is the best part.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“calm”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“any”],holiday:[“valentine”]}},
+{n:“New Year’s Eve Countdown Party”,t:“Make midnight (or 9pm) feel epic”,w:“Marking time together — the end of one year, the beginning of another — with real intention creates a memory that grounds kids in their family’s shared story.”,s:[“Decorate together: streamers, hats, a countdown clock”,“Make a list of highlights from the year — funny, proud, meaningful moments”,“Set intentions for the new year — what do you want more of?”,“Countdown and celebrate — even if it’s an early ‘fake midnight’”],n2:[“Streamers and party supplies”,“Paper for lists”,“Sparkling cider or juice”,“Phone for countdown”],tip:“Let them stay up to real midnight if they can manage it. There’s something they’ll always remember about watching the clock with you.”,e:“medium”,twist:“Write one letter to your future self — seal it and open it next New Year’s.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“calm”],time:[“2+ hours”],budget:[“small”,“free”],weather:[“any”],holiday:[“newyear”]}},
+
+// ═══ WEEKEND SPECIALS ═══
+{n:“Pancake Art Saturday”,t:“Turn breakfast into a canvas”,w:“Starting a weekend morning with something playful and creative sets a tone for the whole day. Pancake art is just silly enough to get everyone smiling before they’re fully awake.”,s:[“Make your usual pancake batter”,“Pour it into squeeze bottles or use a spoon for shapes”,“Challenge: make each other’s faces, favorite animals, or characters”,“Eat your creations and rate the artistic merit”],n2:[“Pancake batter”,“Squeeze bottles or spoon”,“Toppings: fruit, syrup, whipped cream”,“A good pan”],tip:“The worse the likeness, the funnier the breakfast. Failure is the point.”,e:“low”,twist:“Theme breakfast: every pancake must relate to a movie or show you all love.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“silly”,“calm”],time:[“30-45 minutes”],budget:[“free”],weather:[“any”],dayType:[“weekend”]}},
+{n:“Farmer’s Market Adventure”,t:“Explore together, cook what you find”,w:“Wandering a market together with no agenda is one of the simplest and most connective things you can do. The sights, smells, and conversations along the way are the whole point.”,s:[“Head to a local farmer’s market without a specific list”,“Let kids pick one thing that interests them — anything”,“Buy it and figure out what to make with it when you get home”,“Cook and eat your market discovery together”],n2:[“A small budget for market finds”,“Reusable bags”,“Curiosity”],tip:“Let your kids lead the wandering completely. Follow their attention, not your shopping list.”,e:“medium”,twist:“Turn your market finds into a full ‘market meal’ — every ingredient from the market.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“learning”,“calm”],time:[“2+ hours”,“1 hour”],budget:[“small”,“moderate”],weather:[“clear”,“cloudy”],dayType:[“weekend”]}},
+{n:“DIY Car Wash”,t:“Spend an hour making the car sparkle — together”,w:“Working together on a practical task gives kids real competence and contribution. They’re not doing a project — they’re doing something that actually needs doing.”,s:[“Gather supplies: buckets, soap, sponges, hose”,“Assign sections: windows, wheels, body, interior”,“Work together with music blasting”,“End with popsicles or cold drinks in the clean car”],n2:[“Bucket, soap, sponges”,“Hose or water source”,“Towels for drying”,“Cold drinks as reward”],tip:“Let them do it their way even if it’s less efficient. Competence comes from doing, not from being corrected.”,e:“high”,twist:“Vacuum and clean the inside too — let them find all the lost coins.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“silly”],time:[“1 hour”],budget:[“free”],weather:[“clear”,“warm”],dayType:[“weekend”]}},
+
+// ═══ OUTDOOR ═══
+{n:“Backyard Obstacle Course”,t:“Your yard is a ninja warrior arena”,w:“Building the course together is as fun as running it. Kids become creative directors while you become their most enthusiastic — and least graceful — competitor.”,s:[“Gather yard items: hula hoops, jump rope, chairs, pillows”,“Design the course together — 8+ stations”,“Time each run — keep a leaderboard”,“Add a new station each round”],n2:[“Backyard space”,“Household items (chairs, rope, pillows)”,“Timer”],tip:“Lose dramatically on your first run. Their delight at beating you is worth it.”,e:“high”,twist:“Night version: use flashlights and glow sticks after dark.”,tags:{loc:[“outside”],ages:[“young”,“tween”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”,“2+ hours”],budget:[“free”],weather:[“clear”,“warm”,“cloudy”]}},
+{n:“Nature Scavenger Hunt”,t:“Become explorers in your own neighborhood”,w:“A shared mission transforms a regular walk into an adventure. Every find becomes a small victory, and the searching fills the air with easy unforced conversation.”,s:[“Write 15 things to find: something yellow, a feather, a perfect circle, something older than you”,“Head out — photograph each find”,“Bonus points for creative interpretations”,“Award categories: weirdest, prettiest, most surprising”],n2:[“Paper and pen”,“Phone camera”,“Optional: small prize”],tip:“Let kids add items to the list — the weirder the better.”,e:“medium”,twist:“Only find things related to the current season.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“learning”,“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“clear”,“warm”,“cloudy”]}},
+{n:“Bike Adventure”,t:“Ride somewhere you’ve never been — together”,w:“Side-by-side movement lowers the pressure of direct conversation. The destination is an excuse; the ride is the point.”,s:[“Pick somewhere simple: new park, bakery, unfamiliar street”,“Ride at the slowest person’s pace”,“Stop whenever something looks interesting”,“Build in a treat stop if time allows”],n2:[“Bikes and helmets”,“Water bottles”],tip:“Let your kid lead the route home. Giving up navigation control is a surprisingly big gift.”,e:“medium”,twist:“Make it a mystery ride — don’t reveal the destination until you arrive.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“clear”,“warm”,“cloudy”]}},
+{n:“Sidewalk Chalk City”,t:“Build an entire civilization on your driveway”,w:“Creating something large together — a full city that fills the driveway — creates real pride. The finished work is a physical record of your time together.”,s:[“Each person claims their own district”,“Draw buildings, parks, roads, shops”,“Give your city a name, a history, a mayor”,“Play in the city with toy cars or figurines”],n2:[“Sidewalk chalk — lots of colors”,“Driveway or sidewalk”,“Optional: toy cars”],tip:“Ask for a full city tour and listen to every detail like it’s a real place.”,e:“medium”,twist:“Add a natural disaster (chalk flood) and rebuild together.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“learning”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“clear”,“warm”]}},
+{n:“Backyard Stargazing”,t:“Find constellations — then make up your own”,w:“Sharing something awe-inspiring creates a bond that outlasts the evening. The scale of the night sky makes everything smaller in the best possible way.”,s:[“After dark, bring blankets outside”,“Download Stellarium (free app)”,“Find 5 real constellations and learn their stories”,“Invent your own family constellation”],n2:[“Blankets”,“Phone with Stellarium app”,“Hot chocolate strongly recommended”],tip:“Share something you genuinely wonder about space. Kids who see parents be openly curious become curious adults.”,e:“low”,twist:“Make it a monthly ritual — check on your family constellation.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“clear”],timeOfDay:[“evening”,“night”]}},
+{n:“Campfire & S’mores Night”,t:“The original family ritual — fire, sugar, stories”,w:“Everyone naturally slows down, sits close, and speaks more honestly around a campfire. It’s been working for 400,000 years.”,s:[“Set up fire pit or portable bowl safely”,“Roast marshmallows and make s’mores”,“Play 2 Truths and a Lie”,“Tell at least one real story from your own childhood”],n2:[“Fire pit or bowl”,“Firewood or charcoal”,“S’mores ingredients”,“Roasting sticks”],tip:“Ask each person to share one good thing and one hard thing about their week. Firelight makes honesty easier.”,e:“low”,twist:“Each person tells a spooky or silly story — vote for the best.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“silly”],time:[“1 hour”,“2+ hours”],budget:[“small”],weather:[“clear”,“cloudy”],timeOfDay:[“evening”,“night”]}},
+{n:“Cloud Watching & Storytelling”,t:“Lie in the grass and let your imagination run wild”,w:“There’s something profoundly connecting about lying side by side, looking at the same sky, with nowhere to be. Pure presence — no phones, no agenda.”,s:[“Grab a blanket and find a grassy spot”,“Lie back and start spotting shapes”,“Take turns: one person spots, others build on it”,“Turn your shapes into a running story”],n2:[“A blanket”,“Grassy outdoor space”,“Your imagination”],tip:“Build on every single thing they say. Complete ‘yes, and’ mode creates a story that surprises even you.”,e:“low”,twist:“Voice-record the story and play it back later with sound effects.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“calm”,“silly”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“cloudy”,“clear”]}},
+{n:“Water Balloon Battle”,t:“Nobody escapes. Not even the referee.”,w:“Uninhibited physical play where the normal authority dynamic gets totally flipped is one of the most joyful experiences kids can have.”,s:[“Fill 40-60 balloons together — this is half the fun”,“Agree on boundaries, safe zones, no-head rule”,“Free for all — or kids vs parent”,“End with hose cool-down and cold drinks”],n2:[“Water balloons”,“Outdoor space”,“Change of clothes”],tip:“Let them team up against you. A worked-for victory feels completely different.”,e:“high”,twist:“Timed game: whoever hits the most targets in 3 minutes wins.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”,“small”],weather:[“hot”,“warm”]}},
+{n:“Bird Watching Walk”,t:“Become real scientists in your neighborhood”,w:“Slowing down to observe together — really look at the same thing — creates genuine togetherness. Shared focus and small victories of identification build connection.”,s:[“Download the Merlin Bird ID app (free by Cornell)”,“Walk slowly through your neighborhood or a park”,“Identify every bird you see or hear”,“Keep a running family life list of species found”],n2:[“Phone with Merlin app (free)”,“Binoculars if you have them”,“Comfortable shoes”],tip:“Celebrate every identification like a discovery. Even a house sparrow is something if you’re really looking at it.”,e:“low”,twist:“Submit your observations to eBird — you’re doing real citizen science.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“learning”,“calm”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“clear”,“cloudy”]}},
+{n:“Backyard Garden Project”,t:“Plant something and watch it grow — together”,w:“Tending something living together teaches that good things require waiting. Every time they check on the plant, they’ll remember planting it with you.”,s:[“Pick a simple plant or vegetable together”,“Prepare soil or a pot together”,“Plant it, water it, make a little sign”,“Check on it daily and track growth”],n2:[“Seeds or seedling”,“Soil and pot or garden space”,“Watering can”],tip:“Let them take full ownership of watering. The care is theirs.”,e:“medium”,twist:“Time-lapse the growth with daily photos — make a video at the end.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“learning”,“calm”],time:[“30-45 minutes”],budget:[“free”,“small”],weather:[“clear”,“warm”,“cloudy”]}},
+{n:“Capture the Flag”,t:“Strategic outdoor battle in your backyard”,w:“Team competition requiring real strategy and communication teaches so much while feeling like pure play.”,s:[“Divide into teams”,“Set territories and hide flags (towels, shirts)”,“Capture opponent’s flag and return to base to win”,“Add rules: tag freezes, safe zones”],n2:[“Outdoor space”,“Two flags — towels or shirts”,“Energy to run”],tip:“Play hard enough that winning requires real effort — then let them win.”,e:“high”,twist:“Play a night version with flashlights — completely different game.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“clear”,“cloudy”,“warm”]}},
+{n:“20 Questions Walk”,t:“A walking game that gets surprisingly deep”,w:“Walking removes the eye-contact pressure of direct conversation. Kids who never open up at the dinner table often talk freely on a walk.”,s:[“Head out walking with no destination”,“One person thinks of something — others ask yes/no questions”,“Try to guess within 20 questions”,“Switch and play as many rounds as the walk allows”],n2:[“Your feet”,“Optional: snacks to carry”],tip:“The silences between rounds are where the real conversations often start. Don’t rush to fill them.”,e:“low”,twist:“Play ‘family member edition’ — leads to hilarious and revealing discussions.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“calm”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“clear”,“cloudy”,“warm”,“cold”]}},
+{n:“Kite Flying”,t:“Chase the wind together”,w:“Kite flying requires genuine teamwork and patience — launching a kite always involves someone running, someone holding, someone encouraging. It naturally creates a team.”,s:[“Find or buy a simple kite”,“Find an open field or park”,“Work together to launch and keep it up”,“Take turns holding the string”],n2:[“A kite (can be homemade with trash bags and sticks)”,“Open outdoor space”,“Wind”],tip:“When it crashes — and it will — laugh about it. How you handle failure together matters more than the flight.”,e:“medium”,twist:“Make your own kite from a trash bag and sticks — it actually works.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“active”,“silly”],time:[“30-45 minutes”,“1 hour”],budget:[“free”,“small”],weather:[“windy”,“cloudy”,“clear”]}},
+{n:“Snowman Building Contest”,t:“Whose snowman is most absurd?”,w:“Snow transforms the ordinary backyard into something magical. Building together in cold air, cheeks red and hands cold, creates memories that feel almost cinematic.”,s:[“Each person (or team) builds their own snowman”,“No restrictions on design — the weirder the better”,“Collect supplies: sticks, rocks, scarves, carrots, found objects”,“Judge the finished snowmen together — categories: tallest, funniest, most artistic”],n2:[“Snow (required)”,“Scarves, hats, or accessories”,“Sticks and rocks for faces”,“Creativity”],tip:“Build a family one together too — make it a portrait of your family.”,e:“high”,twist:“Build a snow fort and have a snowball fight afterward.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”,“teen”],mood:[“silly”,“active”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“snowy”]}},
+{n:“Snow Fort & Snowball Battle”,t:“Engineering meets all-out warfare”,w:“There’s something primally fun about building a fort and defending it. The shared effort of construction followed by the joy of battle is an experience kids describe decades later.”,s:[“Choose your territory and start building walls”,“Pack snow tight, build up height”,“Stock your arsenal of snowballs”,“Declare battle and go all in”],n2:[“Snow (required)”,“Warm clothes and waterproofs”,“Hot drinks waiting inside afterward”],tip:“Call a truce at some point and just lie in the snow looking up at the sky together.”,e:“high”,twist:“Negotiate a peace treaty that requires completing a dare on each side.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“silly”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“snowy”]}},
+{n:“Puddle Jumping Adventure”,t:“Rain is not a reason to stay inside”,w:“Going out in the rain — intentionally, joyfully — teaches kids that discomfort can be chosen and even delightful. Getting soaked together is surprisingly bonding.”,s:[“Put on rain boots and waterproof gear”,“Head outside specifically to find puddles”,“Jump in every single one — no exceptions”,“Come home for hot chocolate and warm towels”],n2:[“Rain boots”,“Waterproof jackets”,“A towel and warm clothes for after”,“Hot chocolate waiting”],tip:“Jump in the first puddle before they do. The look on their face when they see you do it first is everything.”,e:“high”,twist:“Rate each puddle: size, splash quality, depth, drama.”,tags:{loc:[“outside”],ages:[“toddler”,“young”,“tween”],mood:[“silly”,“active”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“rainy”]}},
+{n:“Two Truths and a Lie”,t:“Learn surprising things about the people you live with”,w:“This simple game reliably surfaces stories that never come up in regular conversation. You’ll be stunned by things your own kids have done or believe.”,s:[“Everyone writes 2 true statements and 1 lie”,“Take turns reading your three statements”,“Others vote on which is the lie”,“Reveal — and tell the full story behind each truth”],n2:[“Paper and pens (optional — can do verbally)”],tip:“Make your own truths genuinely surprising. The more you reveal, the more they will.”,e:“low”,twist:“Play with grandparents or relatives over video call.”,tags:{loc:[“inside”,“outside”],ages:[“young”,“tween”,“teen”],mood:[“silly”,“calm”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Quick Draw Challenge”,t:“Draw it in 60 seconds — guess what it is”,w:“The pressure of a timer and absurdity of terrible drawings creates instant shared laughter. Low stakes, high reward.”,s:[“One person thinks of a word — secretly”,“60 seconds to draw it while others guess”,“First correct guess gets a point”,“Play 10 rounds — keep score”],n2:[“Paper and pens”,“A timer”],tip:“Draw as badly as possible on purpose first round. It sets a tone of pure fun.”,e:“medium”,twist:“Collaborative drawing — each person adds one element per turn.”,tags:{loc:[“inside”,“outside”],ages:[“young”,“tween”,“teen”],mood:[“silly”],time:[“15-20 minutes”,“30-45 minutes”],budget:[“free”],weather:[“any”]}},
+{n:“Homemade Pizza Night”,t:“Everyone gets their own dough to customize”,w:“Personal pizzas are genius — everyone has agency over their own creation but you’re all doing it together.”,s:[“Use store-bought dough or make a simple batch”,“Set out toppings in bowls like a pizza bar”,“Each person makes their own pizza”,“Bake and eat together — compare creations”],n2:[“Pizza dough”,“Sauce and cheese”,“Assorted toppings”,“Baking sheets”],tip:“No judging weird topping combinations — encourage experimentation and try a bite of theirs.”,e:“medium”,twist:“Mystery challenge: each person secretly adds one weird ingredient to a shared pizza.”,tags:{loc:[“inside”],ages:[“young”,“tween”,“teen”,“toddler”],mood:[“silly”,“learning”],time:[“1 hour”,“2+ hours”],budget:[“small”],weather:[“any”]}},
+{n:“Sunrise Watch”,t:“Wake up early and watch the world begin together”,w:“There’s something almost sacred about watching the sunrise together. The quiet, the shared sleepiness, the gradual light — it creates a kind of awe that settles deep.”,s:[“Check sunrise time and set alarms accordingly”,“Bring blankets and warm drinks outside”,“Sit quietly together and watch it happen”,“No phones until it’s fully up”],n2:[“Blankets”,“Warm drinks in thermoses”,“A good view east”],tip:“Don’t force conversation. The silence is enough. Just be there together watching the same thing.”,e:“low”,twist:“Make it a birthday tradition — watch the sunrise on each family member’s birthday.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“calm”],time:[“30-45 minutes”],budget:[“free”],weather:[“clear”],timeOfDay:[“morning”]}},
+{n:“Make Homemade Ice Cream”,t:“Science, sugar, and smiles in one bowl”,w:“The alchemy of making ice cream from ingredients is genuinely magical to kids. The waiting, the tasting, the final result — it’s a perfect arc of shared experience.”,s:[“Use the bag method: cream, sugar, vanilla in a small bag”,“Place inside a larger bag with ice and salt”,“Shake and squeeze for 10-15 minutes”,“Top and eat while still cold”],n2:[“Heavy cream or milk”,“Sugar and vanilla”,“Zip-lock bags (two sizes)”,“Ice and rock salt”,“Toppings”],tip:“The shaking is exhausting — take turns and encourage each other when arms get tired.”,e:“medium”,twist:“Make two flavors and blend them in one bowl.”,tags:{loc:[“inside”],ages:[“toddler”,“young”,“tween”],mood:[“learning”,“silly”],time:[“30-45 minutes”],budget:[“small”,“free”],weather:[“hot”,“warm”,“any”]}},
+{n:“Morning Hike”,t:“Hit the trail before the day fills up”,w:“Morning hikes have a quality of light and quiet that afternoon walks never match. Moving through nature together — before screens, before obligations — is grounding for everyone.”,s:[“Pick a trail rated easy or moderate — nothing too ambitious”,“Pack water, snacks, and sunscreen”,“Move at the pace of the slowest person”,“Stop at every interesting thing”],n2:[“Comfortable shoes”,“Water and snacks”,“Sunscreen”,“A trail to explore”],tip:“Let the youngest set the pace and choose what to explore. Their curiosity will lead you somewhere you wouldn’t have gone.”,e:“medium”,twist:“Keep a family trail journal — date, trail, weather, best moment.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“active”,“calm”],time:[“1 hour”,“2+ hours”],budget:[“free”],weather:[“clear”,“cloudy”],timeOfDay:[“morning”]}},
+{n:“Backyard Astronomy Night”,t:“Telescopes optional — wonder required”,w:“Lying outside in the dark, looking at the same stars humans have looked at forever, creates a sense of scale that quiets everything noisy in family life.”,s:[“Wait until fully dark”,“Bring out blankets, pillows, hot drinks”,“Use a star app together to find planets and constellations”,“Take turns pointing out what you find”],n2:[“Blankets and pillows”,“Star app (Stellarium, free)”,“Hot drinks”,“Telescope if you have one”],tip:“Find one planet — they’re visible to the naked eye and brighter than stars. The moment of ‘that’s actually a planet’ is something kids remember.”,e:“low”,twist:“Try to spot the International Space Station — NASA’s app tells you exactly when to look.”,tags:{loc:[“outside”],ages:[“young”,“tween”,“teen”],mood:[“calm”,“learning”],time:[“30-45 minutes”,“1 hour”],budget:[“free”],weather:[“clear”],timeOfDay:[“night”,“evening”]}},
+];
+
+// ── Scoring ────────────────────────────────────────────────────────────────────
+function scoreAct(a,form){
+let s=0; const t=a.tags;
+// Location
+if(t.loc.includes(form.loc))s+=30;
+else if(t.loc.includes(“inside”)&&form.loc===“both”)s+=15;
+else if(t.loc.includes(“outside”)&&form.loc===“both”)s+=15;
+// Ages
+const ao=(t.ages||[]).filter(x=>form.ages.includes(x)).length;
+s+=ao*18;
+// Mood (multi)
+const mo=(t.mood||[]).filter(x=>form.mood.includes(x)).length;
+s+=mo*20;
+// Time
+if((t.time||[]).includes(form.time))s+=15;
+// Budget
+const bmap={free:[“free”],small:[“free”,“small”],moderate:[“free”,“small”,“moderate”],open:[“free”,“small”,“moderate”,“open”]};
+if((bmap[form.budget]||[]).some(b=>(t.budget||[]).includes(b)))s+=10;
+// Weather bonus
+if(ctx.loaded){
+const tw=t.weather||[“any”];
+if(tw.includes(“any”))s+=5;
+else if(ctx.isRaining&&tw.includes(“rainy”))s+=25;
+else if(ctx.isSnowing&&tw.includes(“snowy”))s+=25;
+else if(ctx.isHot&&tw.includes(“hot”))s+=20;
+else if(ctx.isWindy&&tw.includes(“windy”))s+=15;
+else if(!ctx.isRaining&&!ctx.isSnowing&&tw.includes(“clear”))s+=10;
+else if(!ctx.isRaining&&!ctx.isSnowing&&tw.includes(“warm”)&&!ctx.isCold)s+=10;
+// Penalize outdoor activities in bad weather
+if(t.loc.includes(“outside”)&&!t.loc.includes(“inside”)){
+if(ctx.isRaining&&!tw.includes(“rainy”))s-=30;
+if(ctx.isSnowing&&!tw.includes(“snowy”))s-=20;
+if(ctx.isCold&&!tw.includes(“cold”)&&!tw.includes(“snowy”))s-=15;
+}
+}
+// Holiday bonus
+if(HOLIDAY&&t.holiday){
+if(HOLIDAY.toLowerCase().includes(“halloween”)&&t.holiday.includes(“halloween”))s+=40;
+if(HOLIDAY.toLowerCase().includes(“christmas”)&&t.holiday.includes(“christmas”))s+=40;
+if(HOLIDAY.toLowerCase().includes(“thanksgiving”)&&t.holiday.includes(“thanksgiving”))s+=40;
+if(HOLIDAY.toLowerCase().includes(“valentine”)&&t.holiday.includes(“valentine”))s+=40;
+if(HOLIDAY.toLowerCase().includes(“new year”)&&t.holiday.includes(“newyear”))s+=40;
+}
+// Weekend bonus
+if(IS_WEEKEND&&t.dayType&&t.dayType.includes(“weekend”))s+=15;
+// Time of day
+if(t.timeOfDay&&t.timeOfDay.includes(TOD))s+=10;
+return s;
+}
+
+function pick(form,seen){
+const ranked=L.filter(a=>!seen.includes(a.n))
+.map(a=>({…a,_s:scoreAct(a,form)}))
+.sort((a,b)=>b._s-a._s);
+const top=ranked.slice(0,Math.min(6,ranked.length));
+return top[Math.floor(Math.random()*top.length)]||L[Math.floor(Math.random()*L.length)];
+}
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let step=0,result=null,seen=[],count=0;
+let form={loc:””,ages:[],energy:[],mood:[],time:””,budget:””};
+
+const AGS=[{id:“toddler”,l:“Toddlers”,s:“Ages 1–3”,e:“🍼”},{id:“young”,l:“Young Kids”,s:“Ages 4–7”,e:“🧸”},{id:“tween”,l:“Kids”,s:“Ages 8–12”,e:“🎮”},{id:“teen”,l:“Teens”,s:“Ages 13+”,e:“🎧”}];
+
+function render(){
+const app=document.getElementById(“app”);
+const dots=[0,1,2,3,4,5].map(i=>`<span class="dot${i===step?" active":i<step?" done":""}"></span>`).join(””);
+let body=””;
+
+if(step<6){
+// Context pills
+let pills=`<span class="pill">${SE[SEASON]} ${SEASON}</span><span class="pill">${TE[TOD]} ${TOD}</span><span class="pill">📅 ${DAY}</span>`;
+if(HOLIDAY) pills+=`<span class="pill holiday">${HOLIDAY}</span>`;
+if(IS_WEEKEND) pills+=`<span class="pill">🎉 Weekend</span>`;
+if(!ctx.loaded) pills+=`<span class="pill loading">📍 Getting weather…</span>`;
+else if(ctx.weather) pills+=`<span class="pill weather">${ctx.weather}</span>`;
+if(ctx.city) pills+=`<span class="pill weather">📍 ${ctx.city}</span>`;
+
+```
+body+=`<div class="hdr"><div class="badge">💛 Family Time</div><h1>Connect with your <em>kids</em></h1><p>6 quick questions → your perfect activity</p></div>
+<div class="ctx">${pills}</div>
+<div class="prog">${dots}</div><div class="card">`;
+
+const back=step>0?`<button class="back" onclick="prevStep()">← Back</button>`:"";
+
+if(step===0){
+  body+=`<div class="stag">Step 1 of 6</div><h2>Where will you be?</h2><p class="sub">Pick your setting</p>
+  <div class="og">
+    <button class="oc${form.loc==="outside"?" sel":""}" onclick="setF('loc','outside',1)"><span class="oe">🌳</span><span class="ol">Outside</span><span class="os">Backyard, park, neighborhood</span></button>
+    <button class="oc${form.loc==="inside"?" sel":""}" onclick="setF('loc','inside',1)"><span class="oe">🏠</span><span class="ol">Inside</span><span class="os">Home, living room, kitchen</span></button>
+    <button class="oc${form.loc==="both"?" sel":""}" onclick="setF('loc','both',1)"><span class="oe">🔄</span><span class="ol">Either works</span><span class="os">No preference</span></button>
+  </div>`;
+} else if(step===1){
+  body+=`<div class="stag">Step 2 of 6</div><h2>How much time?</h2><p class="sub">We'll match the activity to your window</p>
+  <div class="og">
+    <button class="oc${form.time==="15-20 minutes"?" sel":""}" onclick="setF('time','15-20 minutes',2)"><span class="oe">⚡</span><span class="ol">15–20 min</span><span class="os">Quick spark</span></button>
+    <button class="oc${form.time==="30-45 minutes"?" sel":""}" onclick="setF('time','30-45 minutes',2)"><span class="oe">🕐</span><span class="ol">30–45 min</span><span class="os">Good stretch</span></button>
+    <button class="oc${form.time==="1 hour"?" sel":""}" onclick="setF('time','1 hour',2)"><span class="oe">🕑</span><span class="ol">~1 hour</span><span class="os">Quality time</span></button>
+    <button class="oc${form.time==="2+ hours"?" sel":""}" onclick="setF('time','2+ hours',2)"><span class="oe">🌟</span><span class="ol">2+ hours</span><span class="os">Full adventure</span></button>
+  </div>
+  <div class="nav">${back}</div>`;
+} else if(step===2){
+  const btns=AGS.map(a=>`<button class="oc${form.ages.includes(a.id)?" sel":""}" onclick="toggleArr('ages','${a.id}')"><span class="oe">${a.e}</span><span class="ol">${a.l}</span><span class="os">${a.s}</span></button>`).join("");
+  body+=`<div class="stag">Step 3 of 6</div><h2>How old are your kids?</h2><p class="sub">Select all that apply</p>
+  <div class="og">${btns}</div>
+  <div class="nav">${back}<button class="nb" onclick="nextStep(3)" ${form.ages.length===0?"disabled":""}>Continue →</button></div>`;
+} else if(step===3){
+  body+=`<div class="stag">Step 4 of 6</div><h2>Your energy level?</h2><p class="sub">Select all that apply</p>
+  <div class="og">
+    <button class="oc${form.energy.includes("low")?" sel":""}" onclick="toggleArr('energy','low')"><span class="oe">😴</span><span class="ol">Low key</span><span class="os">I'm a bit tired</span></button>
+    <button class="oc${form.energy.includes("medium")?" sel":""}" onclick="toggleArr('energy','medium')"><span class="oe">😊</span><span class="ol">Moderate</span><span class="os">Ready to engage</span></button>
+    <button class="oc${form.energy.includes("high")?" sel":""}" onclick="toggleArr('energy','high')"><span class="oe">🚀</span><span class="ol">Energized</span><span class="os">Let's go!</span></button>
+  </div>
+  <div class="nav">${back}<button class="nb" onclick="nextStep(4)" ${form.energy.length===0?"disabled":""}>Continue →</button></div>`;
+} else if(step===4){
+  body+=`<div class="stag">Step 5 of 6</div><h2>What kind of moment?</h2><p class="sub">Select all that apply</p>
+  <div class="og">
+    <button class="oc${form.mood.includes("silly")?" sel":""}" onclick="toggleArr('mood','silly')"><span class="oe">😂</span><span class="ol">Silly & Fun</span><span class="os">Laughing together</span></button>
+    <button class="oc${form.mood.includes("calm")?" sel":""}" onclick="toggleArr('mood','calm')"><span class="oe">🤗</span><span class="ol">Calm & Close</span><span class="os">Quiet bonding</span></button>
+    <button class="oc${form.mood.includes("learning")?" sel":""}" onclick="toggleArr('mood','learning')"><span class="oe">🧠</span><span class="ol">Learn Together</span><span class="os">Creative & curious</span></button>
+    <button class="oc${form.mood.includes("active")?" sel":""}" onclick="toggleArr('mood','active')"><span class="oe">🏃</span><span class="ol">Active</span><span class="os">Move & play</span></button>
+  </div>
+  <div class="nav">${back}<button class="nb" onclick="nextStep(5)" ${form.mood.length===0?"disabled":""}>Continue →</button></div>`;
+} else if(step===5){
+  body+=`<div class="stag">Step 6 of 6</div><h2>Any budget in mind?</h2><p class="sub">Great activities exist at every level</p>
+  <div class="og">
+    <button class="oc${form.budget==="free"?" sel":""}" onclick="setF('budget','free',99)"><span class="oe">🆓</span><span class="ol">Free</span><span class="os">No spend needed</span></button>
+    <button class="oc${form.budget==="small"?" sel":""}" onclick="setF('budget','small',99)"><span class="oe">💵</span><span class="ol">Small spend</span><span class="os">Under $20</span></button>
+    <button class="oc${form.budget==="moderate"?" sel":""}" onclick="setF('budget','moderate',99)"><span class="oe">💳</span><span class="ol">Moderate</span><span class="os">$20–$50</span></button>
+    <button class="oc${form.budget==="open"?" sel":""}" onclick="setF('budget','open',99)"><span class="oe">✨</span><span class="ol">Open</span><span class="os">Whatever it takes</span></button>
+  </div>
+  <div class="nav">${back}</div>`;
+}
+body+=`</div>`;
+```
+
+} else if(step===6&&result){
+// Context bar for result
+let ctxbar=`${DAY} • ${TOD} • ${SE[SEASON]} ${SEASON}`;
+if(ctx.weather) ctxbar+=` • ${ctx.weather}`;
+if(HOLIDAY) ctxbar+=` • ${HOLIDAY}`;
+
+```
+const steps=result.s.map((x,i)=>`<li><span class="sn">${i+1}</span><span>${x}</span></li>`).join("");
+const needs=result.n2.map(x=>`<span class="tg">${x}</span>`).join("");
+const twist=result.twist?`<div class="sec"><div class="st">🌟 Bonus Twist</div><div class="bb">${result.twist}</div></div>`:"";
+const cntbadge=count>1?`<div class="cb">#${count}</div>`:"";
+body+=`
+<div class="hero">
+  ${cntbadge}
+  <div class="ht">✨ Your Activity</div>
+  <h2>${result.n}</h2>
+  <div class="htl">${result.t}</div>
+  <div class="hm">
+    <span class="chip">⚡ ${result.e} energy</span>
+  </div>
+  <div class="ctx-bar">${ctxbar}</div>
+</div>
+<div class="secs">
+  <div class="sec"><div class="st">💬 Why This Works</div><p class="wt">${result.w}</p></div>
+  <div class="sec"><div class="st">📋 How To Do It</div><ul class="sl">${steps}</ul></div>
+  <div class="sec"><div class="st">🎒 What You'll Need</div><div class="tgs">${needs}</div></div>
+  <div class="sec"><div class="st">❤️ Connection Tip</div><div class="tb">${result.tip}</div></div>
+  ${twist}
+</div>
+<div class="acts">
+  <button class="bp" onclick="resetApp()">🔄 Start Over</button>
+  <button class="bs" onclick="tryAnother()">✨ Try Another</button>
+</div>`;
+```
+
+}
+
+app.innerHTML=body;
+}
+
+function setF(k,v,nextS){
+form[k]=v;
+render();
+if(nextS===99){setTimeout(showResult,260);}
+else if(nextS){setTimeout(()=>{step=nextS;render();},260);}
+}
+function toggleArr(k,v){
+form[k]=form[k].includes(v)?form[k].filter(x=>x!==v):[…form[k],v];
+render();
+}
+function nextStep(n){step=n;render();}
+function prevStep(){step=Math.max(0,step-1);render();window.scrollTo(0,0);}
+function showResult(){
+result=pick(form,seen);
+seen=[…seen,result.n];
+count++;
+step=6;
+render();
+window.scrollTo(0,0);
+}
+function tryAnother(){
+if(seen.length>=L.length)seen=[];
+result=pick(form,seen);
+seen=[…seen,result.n];
+count++;
+render();
+window.scrollTo(0,0);
+}
+function resetApp(){
+step=0;result=null;seen=[];count=0;
+form={loc:””,ages:[],energy:[],mood:[],time:””,budget:””};
+render();window.scrollTo(0,0);
+}
+
+// Start loading location/weather in background
+render();
+loadContext();
+</script>
+
+</body>
+</html>
