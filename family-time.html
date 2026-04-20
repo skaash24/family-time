@@ -326,7 +326,7 @@ function render(){
     let pills=`<span class="pill">${SE[SEASON]} ${SEASON}</span><span class="pill">${TE[TOD]} ${TOD}</span><span class="pill">📅 ${DAY}</span>`;
     if(HOLIDAY) pills+=`<span class="pill holiday">${HOLIDAY}</span>`;
     if(IS_WEEKEND) pills+=`<span class="pill">🎉 Weekend</span>`;
-    if(!ctx.loaded) pills+=`<span class="pill loading">📍 Getting weather…</span>`;
+    if(!ctx.loaded) pills+=`<span class="pill loading">📍 Getting weather...</span>`;
     else if(ctx.weather) pills+=`<span class="pill weather">${ctx.weather}</span>`;
     if(ctx.city) pills+=`<span class="pill weather">📍 ${ctx.city}</span>`;
 
