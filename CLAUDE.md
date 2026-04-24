@@ -183,6 +183,22 @@ Then just say what you want changed in plain English. Claude Code can edit `inde
 
 ---
 
+## Working Rules for Claude
+
+> These apply in every session, every time.
+
+1. **After every `git push`, verify the live site before calling the task done:**
+   ```bash
+   curl -s https://skaash24.github.io/family-time/index.html | grep -c "const L=\["
+   ```
+   Must return `1`. Also spot-check for any recently added content.
+
+2. **Never close a task until the live site check passes.**
+
+3. **GitHub Pages takes ~1 minute to rebuild after a push** — if the check fails, wait 60 seconds and try again before assuming something is broken.
+
+---
+
 ## Owner
 
-Sharon — skaash24 on GitHub
+Kevin — skaash24 on GitHub
