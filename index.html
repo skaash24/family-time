@@ -625,7 +625,7 @@ function scoreAct(a,form){
   s+=mo*20;
   if((t.time||[]).includes(form.time))s+=15;
 
-  const bmap={free:["free"],small:["free","small"],splurge:["free","small","moderate","splurge"],open:["free","small","moderate","splurge","open"]};
+  const bmap={free:["free"],small:["free","small"],splurge:["moderate","splurge"],open:["free","small","moderate","splurge","open"]};
   if((bmap[form.budget]||bmap.open).some(b=>(t.budget||[]).includes(b)))s+=10;
 
   const tw=t.weather||["any"];
