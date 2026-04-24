@@ -705,7 +705,10 @@ function getRichDetail(activity){
     const city=overrides.city||ctx.city||"";
     const q=encodeURIComponent((city?city+" ":"")+activity.searchQuery);
     const url=`https://www.google.com/search?q=${q}`;
-    return{title:"📍 Find Near You",items:[`<a href="${url}" target="_blank" style="color:var(--te);font-weight:800;">Search: ${activity.searchQuery}${city?" near "+city:""} →</a>`,"Check Yelp, Google Maps, or local event listings for current options and hours","Look for family packages, memberships, or seasonal discounts","Call ahead to confirm age requirements and availability"]};
+    return[
+      {title:"📍 Find Near You",items:[`<a href="${url}" target="_blank" style="color:var(--te);font-weight:800;">Search: ${activity.searchQuery}${city?" near "+city:""} →</a>`,"Check Yelp and Google Maps for locations, reviews, and current hours","Look for family packages or memberships — often 20–40% cheaper than walk-in pricing"]},
+      {title:"✅ Before You Go",items:["Book in advance — most venues require reservations, especially on weekends","Confirm age and height requirements when booking so no one gets turned away","Ask what's included in the price: gear, instruction, lockers, parking","Budget for extras on top of admission: food, souvenirs, gratuity, and parking","Check Google Maps for directions and parking before you leave home"]}
+    ];
   }
   return null;
 }
@@ -830,7 +833,8 @@ function render(){
     const cntbadge=count>1?`<div class="cb">#${count}</div>`:"";
 
     const rich=getRichDetail(result);
-    const richHtml=rich?`<div class="sec rich-sec"><div class="st">${rich.title}</div><ul class="rich-list">${rich.items.map(item=>`<li><span class="rich-dot"></span><span>${item}</span></li>`).join("")}</ul></div>`:"";
+    const richSections=rich?(Array.isArray(rich)?rich:[rich]):[];
+    const richHtml=richSections.map(r=>`<div class="sec rich-sec"><div class="st">${r.title}</div><ul class="rich-list">${r.items.map(item=>`<li><span class="rich-dot"></span><span>${item}</span></li>`).join("")}</ul></div>`).join("");
 
     body+=`
     <div class="hero">
